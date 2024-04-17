@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 from dotenv import dotenv_values
+from env_wrangler.contants import MASK_VALUE
 from env_wrangler.core import envs_to_dict
 from env_wrangler.core import filter_keys_by_substring
 from env_wrangler.core import json_to_env
@@ -101,8 +102,8 @@ def test_mask_sensitive_data_in_file(tmp_path):
     # Load the .env file and check that the sensitive keys have been masked
     env_vars = dotenv_values(str(env_file))
     assert isinstance(output_file, Path)
-    assert env_vars["SECRET_KEY"] == "********"  # noqa: S105
-    assert env_vars["PASSWORD"] == "********"  # noqa: S105
+    assert env_vars["SECRET_KEY"] == MASK_VALUE  # noqa: S105
+    assert env_vars["PASSWORD"] == MASK_VALUE  # noqa: S105
     assert env_vars["FOO"] == "bar"
     assert env_vars["BAR"] == "baz"
 
@@ -110,7 +111,9 @@ def test_mask_sensitive_data_in_file(tmp_path):
 def test_unmask_sensitive_data_in_file(tmp_path):
     # Create a .env file in the temporary directory with masked sensitive data
     env_file = tmp_path / ".env"
-    env_file.write_text("SECRET_KEY=********\nPASSWORD=********\nFOO=bar\nBAR=baz")
+    env_file.write_text(
+        f"SECRET_KEY={MASK_VALUE}\nPASSWORD={MASK_VALUE}\nFOO=bar\nBAR=baz"
+    )
 
     # Call unmask_sensitive_data_in_file with the path to the .env file, a list of sensitive keys, and their original values
     output_file = unmask_sensitive_data_in_file(
