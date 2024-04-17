@@ -1,8 +1,6 @@
 # Env Wrangler
 
-![Coverage](https://img.shields.io/badge/coverage-76%25-brightgreen)
-
-<!-- ![Code Style](https://img.shields.io/badge/code_style-ruff-black) -->
+![Coverage](https://img.shields.io/badge/coverage-97%25-brightgreen)
 
 ## Overview
 
@@ -19,7 +17,7 @@ The `path` parameter is a directory, not a file!
 
 ```bash
 env-wrangler extract --path=".envs/.production"
-# Only to be done if you've run extract
+# Only run if you've previously run extract
 env-wrangler mask --path=".envs/.production"
 env-wrangler unmask --path=".envs/.production"
 ```
@@ -51,6 +49,9 @@ make pytest
 make coverage
 make open_coverage
 ```
+
+# TODO
+- Add tests for cli commands
 
 ## Issues
 

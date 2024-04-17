@@ -40,6 +40,14 @@ def test_save_dict_to_json_file(tmp_path):
     assert loaded_data == data
 
 
+def test_save_empty_dict_to_json_file(tmp_path):
+    data = {}
+    file_path = tmp_path / "test.json"
+    output_file = save_dict_to_json_file(data, str(file_path))
+
+    assert output_file is None
+
+
 def test_save_dict_to_env_file(tmp_path):
     data = {"key1": "value1", "key2": "value2"}
     file_path = tmp_path / "test.env"
@@ -55,6 +63,14 @@ def test_save_dict_to_env_file(tmp_path):
 
     assert isinstance(output_file, Path)
     assert loaded_data == data
+
+
+def test_save_empty_dict_to_env_file(tmp_path):
+    data = {}
+    file_path = tmp_path / "test.env"
+    output_file = save_dict_to_env_file(data, str(file_path))
+
+    assert output_file is None
 
 
 def test_filter_keys_by_substring():
