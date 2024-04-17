@@ -3,7 +3,7 @@ from pathlib import Path
 
 from dotenv import dotenv_values
 
-from .contants import MASK_VALUE
+from .constants import MASK_VALUE
 
 
 def envs_to_dict(env_files: list[str]) -> dict:

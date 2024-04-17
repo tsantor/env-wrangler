@@ -4,8 +4,8 @@ from pathlib import Path
 
 import click  # https://click.palletsprojects.com/
 
-from .contants import DEFAULT_SECTION
-from .contants import KEY_WORDS_SETTING
+from .constants import DEFAULT_SECTION
+from .constants import KEY_WORDS_SETTING
 from .core import envs_to_dict
 from .core import filter_keys_by_substring
 from .core import mask_sensitive_data_in_file
