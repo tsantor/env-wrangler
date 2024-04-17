@@ -15,11 +15,13 @@ python3 -m pip install env-wrangler
 ```
 
 ## Usage
+The `path` parameter is a directory, not a file!
 
 ```bash
-env-wrangler extract --path="~/Documents" --format="json"
-env-wrangler mask --path="~/Documents/.production/.django"
-env-wrangler unmask --path="~/Documents/.production/.django"
+env-wrangler extract --path=".envs/.production"
+# Only to be done if you've run extract
+env-wrangler mask --path=".envs/.production"
+env-wrangler unmask --path=".envs/.production"
 ```
 
 > **NOTE:** For help run `env-wrangler --help` or for a specific command run `env-wrangler {command} --help`.

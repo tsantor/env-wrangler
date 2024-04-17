@@ -1,3 +1,4 @@
+import json
 import logging
 from pathlib import Path
 
@@ -22,6 +23,10 @@ def silent_echo(*args, **kwargs):
     pass
 
 
+def file_error():
+    click.echo("Path is a file, not a directory. Please provide a directory.", err=True)
+
+
 def common_options(func):
     """Decorator to add common options to a command."""
     func = click.option(
@@ -42,91 +47,99 @@ def common_options(func):
     help="The output format.",
 )
 def extract(path, verbose, format):  # noqa: A002
-    """Extract secrets from the .env file(s) into a separate file."""
+    """Extract secrets from the .env file(s) in the given directory into a separate file."""
 
     if not verbose:
         click.echo = silent_echo
 
-    project_path = Path(path).expanduser()
-    words = get_config_value_as_list(config, DEFAULT_SECTION, KEY_WORDS_SETTING)
+    path = Path(path).expanduser()
+    if path.is_file():
+        file_error()
+        return
 
-    # Env dirs
-    # local_env_dir = project_path / ".envs/.local"
-    prod_env_dir = project_path / ".envs/.production"
+    key_words = get_config_value_as_list(config, DEFAULT_SECTION, KEY_WORDS_SETTING)
 
-    prod_env_files = [prod_env_dir / ".django", prod_env_dir / ".postgres"]
-    prod_config = envs_to_dict(prod_env_files)
+    click.echo(f"Extracting secrets from all .env files in {path}")
+    target_envs = get_config_value_as_list(config, DEFAULT_SECTION, "envs")
+    env_files = [path / file for file in target_envs]
+    env = envs_to_dict(env_files)
 
-    # print(prod_config)
-    final_prod_config = filter_keys_by_substring(prod_config, words)
-    # print(final_prod_config)
-
-    # Output as json or env
+    secrets_dict = filter_keys_by_substring(env, key_words)
     if format == "json":
-        save_dict_to_json_file(final_prod_config, prod_env_dir / "secrets.json")
+        output_file = save_dict_to_json_file(secrets_dict, path / "secrets.json")
+        click.echo(f"Secrets saved to {output_file}")
     elif format == "env":
-        save_dict_to_env_file(final_prod_config, prod_env_dir / ".secrets")
+        output_file = save_dict_to_env_file(secrets_dict, path / ".secrets")
+        click.echo(f"Secrets saved to {output_file}")
     else:
-        save_dict_to_json_file(final_prod_config, prod_env_dir / "secrets.json")
-        save_dict_to_env_file(final_prod_config, prod_env_dir / ".secrets")
+        output_file1 = save_dict_to_json_file(secrets_dict, path / "secrets.json")
+        output_file2 = save_dict_to_env_file(secrets_dict, path / ".secrets")
+        if output_file1 and output_file2:
+            click.echo(f"Secrets saved to {output_file1} and {output_file2}")
+        else:
+            click.echo("No secrets found to extract.", err=True)
 
 
 @click.command()
 @common_options
 def mask(path, verbose) -> None:
-    """Mask sensitive data in the .env file(s)."""
+    """Mask sensitive data in the .env file(s) in the given directory."""
 
     if not verbose:
         click.echo = silent_echo
 
     path = Path(path).expanduser()
     if path.is_file():
-        click.echo(f"Masking sensitive data in {path}")
-        key_words = get_config_value_as_list(config, DEFAULT_SECTION, KEY_WORDS_SETTING)
-        mask_sensitive_data_in_file(path, key_words)
+        file_error()
+        return
 
-    elif path.is_dir():
-        click.echo(f"Masking sensitive data in all .env files in {path}")
-        key_words = get_config_value_as_list(config, DEFAULT_SECTION, KEY_WORDS_SETTING)
-        target_envs = get_config_value_as_list(config, DEFAULT_SECTION, "envs")
-        for file_path in target_envs:
-            file = path / file_path
-            if file.exists():
-                click.echo(f"Masking sensitive data in {file}")
-                mask_sensitive_data_in_file(file, key_words)
+    key_words = get_config_value_as_list(config, DEFAULT_SECTION, KEY_WORDS_SETTING)
+
+    click.echo(f"Masking sensitive data in all .env files in {path}")
+    target_envs = get_config_value_as_list(config, DEFAULT_SECTION, "envs")
+    for file_path in target_envs:
+        file = path / file_path
+        if file.exists():
+            click.echo(f"Masking sensitive data in {file}")
+            mask_sensitive_data_in_file(file, key_words)
 
 
 @click.command()
 @common_options
 def unmask(path, verbose) -> None:
-    """Unmask sensitive data in the .env file(s)."""
+    """Unmask sensitive data in the .env file(s) in the given directory."""
 
     if not verbose:
         click.echo = silent_echo
 
     path = Path(path).expanduser()
     if path.is_file():
-        click.echo(f"Unmasking sensitive data in {path}")
-        key_words = get_config_value_as_list(config, DEFAULT_SECTION, KEY_WORDS_SETTING)
-        secret_env = path.parent / ".secrets"
-        env = envs_to_dict([secret_env])
-        filtered = filter_keys_by_substring(env, key_words)
-        unmask_sensitive_data_in_file(path, filtered)
+        file_error()
+        return
 
-    elif path.is_dir():
-        click.echo(f"Unmasking sensitive data in all .env files in {path}")
-        target_envs = get_config_value_as_list(config, DEFAULT_SECTION, "envs")
-        for file_path in target_envs:
-            env_file = path / file_path
-            if env_file.exists():
-                click.echo(f"Unmasking sensitive data in {env_file}")
-                key_words = get_config_value_as_list(
-                    config, DEFAULT_SECTION, KEY_WORDS_SETTING
-                )
-                secret_env = env_file.parent / ".secrets"
+    key_words = get_config_value_as_list(config, DEFAULT_SECTION, KEY_WORDS_SETTING)
+
+    # Ensure that the secrets file exists
+    secret_env = path / ".secrets"
+    secret_json = path / "secrets.json"
+    if not secret_env.exists() and not secret_json.exists():
+        click.echo(
+            "No secrets file(s) found to unmask (.secrets or secrets.json).", err=True
+        )
+        return
+
+    click.echo(f"Unmasking sensitive data in all .env files in {path}")
+    target_envs = get_config_value_as_list(config, DEFAULT_SECTION, "envs")
+    for file_path in target_envs:
+        env_file = path / file_path
+        if env_file.exists():
+            click.echo(f"Unmasking sensitive data in {env_file}")
+            if secret_env.exists():
                 env = envs_to_dict([secret_env])
                 filtered = filter_keys_by_substring(env, key_words)
-                unmask_sensitive_data_in_file(env_file, filtered)
+            elif secret_json.exists():
+                filtered = json.loads(secret_json.read_text())
+            unmask_sensitive_data_in_file(env_file, filtered)
 
 
 # Set up your command-line interface grouping

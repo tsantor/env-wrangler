@@ -14,6 +14,8 @@ def envs_to_dict(env_files: list[str]) -> dict:
 
 def save_dict_to_json_file(data: dict, file_path: Path) -> Path:
     """Save a dictionary to a JSON file."""
+    if not data:
+        return None
     file_path = Path(file_path).expanduser()
     file_path.write_text(json.dumps(data, indent=2))
     return file_path
@@ -21,6 +23,8 @@ def save_dict_to_json_file(data: dict, file_path: Path) -> Path:
 
 def save_dict_to_env_file(data: dict, file_path: str) -> Path:
     """Save a dictionary to an env file."""
+    if not data:
+        return None
     env_content = "\n".join([f"{key}={value}" for key, value in data.items()])
     file_path = Path(file_path).expanduser()
     file_path.write_text(env_content)
@@ -34,11 +38,14 @@ def filter_keys_by_substring(input_dict: dict, words_to_keep: list[str]) -> dict
     :param input_dict: Dictionary to be filtered.
     :param words_to_keep: List of words to check against the keys in the dictionary.
     """
-    return {
+    secrets = {
         key: input_dict[key]
         for key in input_dict
         if any(word in key for word in words_to_keep)
     }
+    # Remove any keys with values of "********"
+    # Safeguard to prevent extracting masked values
+    return {key: value for key, value in secrets.items() if value != "********"}
 
 
 def mask_sensitive_data_in_file(file_path: str, filter_keys: list) -> Path:

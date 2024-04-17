@@ -5,4 +5,3 @@ include README.md
 recursive-include requirements/ *.txt
 
 recursive-include src/env_wrangler/data/ *.cfg
-# recursive-include src/env_wrangler/data/ *.ps1

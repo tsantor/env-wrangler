@@ -20,3 +20,6 @@ htmlcov/
 
 .ruff_cache/
 node_modules/
+
+# Project Specific
+src/env_wrangler/data/test.txt

@@ -34,10 +34,10 @@ if not LOG_FILE.exists():
 # -----------------------------------------------------------------------------
 
 
-config = ConfigParser()
-config.read(CONFIG_FILE)
-
-
 def get_config_value_as_list(config: ConfigParser, section: str, key: str) -> list[str]:
     data_string = config[section][key]
     return [item.strip() for item in data_string.split(",")]
+
+
+config = ConfigParser()
+config.read(CONFIG_FILE)
