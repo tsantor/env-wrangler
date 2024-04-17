@@ -1,0 +1,22 @@
+# System
+*.DS_Store
+
+# Python
+*.pyc
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Editor
+.vscode/
+
+# Testing leftovers
+.tox/
+.coverage
+.python-version
+htmlcov/
+
+.ruff_cache/
+node_modules/
