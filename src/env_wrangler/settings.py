@@ -10,8 +10,8 @@ logger = logging.getLogger(__name__)
 # -----------------------------------------------------------------------------
 
 
-def copy_file(filename, dst):
-    """Copy data files from data folder."""
+def copy_resource_file(filename, dst):
+    """Copy data files from package data folder."""
     # Create destination dir if needed
     dir_path = Path(dst).parent
     if not dir_path.is_dir():
@@ -25,11 +25,11 @@ def copy_file(filename, dst):
 
 CONFIG_FILE = Path("~/.env-wrangler/env-wrangler.cfg").expanduser()
 if not CONFIG_FILE.exists():
-    copy_file("env-wrangler.cfg", str(CONFIG_FILE))
+    copy_resource_file("env-wrangler.cfg", str(CONFIG_FILE))  # pragma: no cover
 
 LOG_FILE = Path("~/.env-wrangler/env-wrangler.log").expanduser()
 if not LOG_FILE.exists():
-    LOG_FILE.touch()
+    LOG_FILE.touch()  # pragma: no cover
 
 # -----------------------------------------------------------------------------
 

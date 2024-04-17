@@ -4,9 +4,11 @@ from pathlib import Path
 from dotenv import dotenv_values
 from env_wrangler.core import envs_to_dict
 from env_wrangler.core import filter_keys_by_substring
+from env_wrangler.core import json_to_env
 from env_wrangler.core import mask_sensitive_data_in_file
 from env_wrangler.core import save_dict_to_env_file
 from env_wrangler.core import save_dict_to_json_file
+from env_wrangler.core import unmask_sensitive_data_in_file
 
 
 def test_envs_to_dict(tmp_path):
@@ -29,18 +31,19 @@ def test_envs_to_dict(tmp_path):
 def test_save_dict_to_json_file(tmp_path):
     data = {"key1": "value1", "key2": "value2"}
     file_path = tmp_path / "test.json"
-    save_dict_to_json_file(data, str(file_path))
+    output_file = save_dict_to_json_file(data, str(file_path))
 
     file_path = Path(file_path)
     loaded_data = json.loads(file_path.read_text())
 
+    assert isinstance(output_file, Path)
     assert loaded_data == data
 
 
 def test_save_dict_to_env_file(tmp_path):
     data = {"key1": "value1", "key2": "value2"}
     file_path = tmp_path / "test.env"
-    save_dict_to_env_file(data, str(file_path))
+    output_file = save_dict_to_env_file(data, str(file_path))
 
     file_path = Path(file_path)
     lines = file_path.read_text().splitlines()
@@ -50,6 +53,7 @@ def test_save_dict_to_env_file(tmp_path):
         key, value = line.split("=")
         loaded_data[key] = value
 
+    assert isinstance(output_file, Path)
     assert loaded_data == data
 
 
@@ -76,11 +80,51 @@ def test_mask_sensitive_data_in_file(tmp_path):
     env_file.write_text("SECRET_KEY=secret\nPASSWORD=password\nFOO=bar\nBAR=baz")
 
     # Call mask_sensitive_data with the path to the .env file and a list of sensitive keys
-    mask_sensitive_data_in_file(str(env_file), ["SECRET_KEY", "PASSWORD"])
+    output_file = mask_sensitive_data_in_file(str(env_file), ["SECRET_KEY", "PASSWORD"])
 
     # Load the .env file and check that the sensitive keys have been masked
     env_vars = dotenv_values(str(env_file))
+    assert isinstance(output_file, Path)
     assert env_vars["SECRET_KEY"] == "********"  # noqa: S105
     assert env_vars["PASSWORD"] == "********"  # noqa: S105
     assert env_vars["FOO"] == "bar"
     assert env_vars["BAR"] == "baz"
+
+
+def test_unmask_sensitive_data_in_file(tmp_path):
+    # Create a .env file in the temporary directory with masked sensitive data
+    env_file = tmp_path / ".env"
+    env_file.write_text("SECRET_KEY=********\nPASSWORD=********\nFOO=bar\nBAR=baz")
+
+    # Call unmask_sensitive_data_in_file with the path to the .env file, a list of sensitive keys, and their original values
+    output_file = unmask_sensitive_data_in_file(
+        str(env_file), {"SECRET_KEY": "secret", "PASSWORD": "password"}
+    )
+
+    # Load the .env file and check that the sensitive keys have been unmasked
+    env_vars = dotenv_values(str(env_file))
+    assert isinstance(output_file, Path)
+    assert env_vars["SECRET_KEY"] == "secret"  # noqa: S105
+    assert env_vars["PASSWORD"] == "password"  # noqa: S105
+    assert env_vars["FOO"] == "bar"
+    assert env_vars["BAR"] == "baz"
+
+
+def test_json_to_env(tmp_path):
+    # Create a JSON file in the temporary directory
+    json_file = tmp_path / "data.json"
+    data = {"SECRET_KEY": "secret", "PASSWORD": "password", "FOO": "bar", "BAR": "baz"}
+    json_file.write_text(json.dumps(data))
+
+    # Create a path for the .env file
+    env_file = tmp_path / ".env"
+
+    # Call json_to_env with the paths to the JSON and .env files
+    output_file = json_to_env(str(json_file), str(env_file))
+
+    # Load the .env file and check that it contains the correct data
+    env_lines = env_file.read_text().splitlines()
+    env_data = dict(line.split("=") for line in env_lines)
+
+    assert isinstance(output_file, Path)
+    assert env_data == data

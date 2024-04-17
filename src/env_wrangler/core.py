@@ -4,7 +4,7 @@ from pathlib import Path
 from dotenv import dotenv_values
 
 
-def envs_to_dict(env_files) -> dict:
+def envs_to_dict(env_files: list[str]) -> dict:
     """Read env files, merge them and return a dict"""
     config = {}
     for env_file in env_files:
@@ -12,24 +12,22 @@ def envs_to_dict(env_files) -> dict:
     return config
 
 
-def save_dict_to_json_file(data: dict, file_path: Path):
+def save_dict_to_json_file(data: dict, file_path: Path) -> Path:
     """Save a dictionary to a JSON file."""
-    file_path = (
-        Path(file_path).expanduser() if isinstance(file_path, str) else file_path
-    )
+    file_path = Path(file_path).expanduser()
     file_path.write_text(json.dumps(data, indent=2))
+    return file_path
 
 
-def save_dict_to_env_file(data: dict, file_path):
+def save_dict_to_env_file(data: dict, file_path: str) -> Path:
     """Save a dictionary to an env file."""
     env_content = "\n".join([f"{key}={value}" for key, value in data.items()])
-    file_path = (
-        Path(file_path).expanduser() if isinstance(file_path, str) else file_path
-    )
+    file_path = Path(file_path).expanduser()
     file_path.write_text(env_content)
+    return file_path
 
 
-def filter_keys_by_substring(input_dict, words_to_keep) -> dict:
+def filter_keys_by_substring(input_dict: dict, words_to_keep: list[str]) -> dict:
     """
     Filters a dictionary to keep only keys that include any of the specified words.
 
@@ -43,7 +41,7 @@ def filter_keys_by_substring(input_dict, words_to_keep) -> dict:
     }
 
 
-def mask_sensitive_data_in_file(file_path: str, filter_keys: list) -> None:
+def mask_sensitive_data_in_file(file_path: str, filter_keys: list) -> Path:
     """Mask sensitive data in a .env file.
 
     Args:
@@ -61,10 +59,11 @@ def mask_sensitive_data_in_file(file_path: str, filter_keys: list) -> None:
         masked_lines.append(line)
 
     file_path.write_text("\n".join(masked_lines))
+    return file_path
 
 
-def replace_values_in_file(file_path: str, replacements: dict) -> None:
-    """Replace values in a file based on a dictionary of key-value pairs.
+def unmask_sensitive_data_in_file(file_path: str, replacements: dict) -> Path:
+    """Unmask sensitive data in a .env file.
 
     Args:
         file_path (str): The path to the file.
@@ -81,9 +80,10 @@ def replace_values_in_file(file_path: str, replacements: dict) -> None:
         replaced_lines.append(line)
 
     file_path.write_text("\n".join(replaced_lines))
+    return file_path
 
 
-def json_to_env(json_file_path: str, env_file_path: str) -> None:
+def json_to_env(json_file_path: str, env_file_path: str) -> Path:
     """Convert a JSON file to a .env file.
 
     Args:
@@ -98,3 +98,4 @@ def json_to_env(json_file_path: str, env_file_path: str) -> None:
 
     env_lines = [f"{key}={value}" for key, value in data.items()]
     env_file_path.write_text("\n".join(env_lines))
+    return env_file_path

@@ -1,6 +1,6 @@
 # Env Wrangler
 
-![Coverage](https://img.shields.io/badge/coverage-0%25-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-76%25-brightgreen)
 
 <!-- ![Code Style](https://img.shields.io/badge/code_style-ruff-black) -->
 
@@ -31,7 +31,7 @@ Upon first run, `env-wrangler` creates a `~/.env-wrangler/env-wrangler.cfg` file
 ; Any environment variable that contains one of the following key words will be considered a secret
 key_words = ACCESS_KEY, ACCESS_TOKEN, API_KEY, CLIENT_ID, CLIENT_SECRET, CONSUMER_KEY, CREDENTIALS, ENCRYPTION_KEY, HASH, JWT_SECRET, MASTER_KEY, OAUTH_TOKEN, PASSWORD, PRIVATE_KEY, SALT, SECRET, TOKEN, USER
 ; The env files that will be considered for extraction
-envs = .django, .postgres
+envs = .env, .django, .postgres
 ```
 
 ## Development
