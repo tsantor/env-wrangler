@@ -2,7 +2,7 @@ import json
 from pathlib import Path
 
 from dotenv import dotenv_values
-from env_wrangler.contants import MASK_VALUE
+from env_wrangler.constants import MASK_VALUE
 from env_wrangler.core import envs_to_dict
 from env_wrangler.core import filter_keys_by_substring
 from env_wrangler.core import json_to_env
