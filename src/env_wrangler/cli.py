@@ -119,12 +119,19 @@ def mask(path, verbose) -> None:
 
     key_words = get_config_value_as_list(config, DEFAULT_SECTION, KEY_WORDS_SETTING)
 
+    masked_files = []
     target_envs = get_config_value_as_list(config, DEFAULT_SECTION, "envs")
     for file_path in target_envs:
         file = path / file_path
         if file.exists():
-            click.echo(f"Masking sensitive data in {home_agnostic_path(file)}")
+            masked_files.append(file)
             mask_sensitive_data_in_file(file, key_words)
+
+    # Let the user know which files were masked
+    if masked_files:
+        click.echo("Masked sensitive data in the following envs:")
+        for file in masked_files:
+            click.echo(f"   {home_agnostic_path(file)}")
 
 
 @click.command()
@@ -153,17 +160,24 @@ def unmask(path, verbose) -> None:
 
     key_words = get_config_value_as_list(config, DEFAULT_SECTION, KEY_WORDS_SETTING)
 
+    unmasked_files = []
     target_envs = get_config_value_as_list(config, DEFAULT_SECTION, "envs")
     for file_path in target_envs:
         env_file = path / file_path
         if env_file.exists():
-            click.echo(f"Unmasking sensitive data in {home_agnostic_path(env_file)}")
+            unmasked_files.append(env_file)
             if secret_env.exists():
                 env = envs_to_dict([secret_env])
                 filtered = filter_keys_by_substring(env, key_words)
             elif secret_json.exists():
                 filtered = json.loads(secret_json.read_text())
             unmask_sensitive_data_in_file(env_file, filtered)
+
+    # Let the user know which files were unmasked
+    if unmasked_files:
+        click.echo("Unmasked sensitive data in the following envs:")
+        for file in unmasked_files:
+            click.echo(f"   {home_agnostic_path(file)}")
 
 
 # Set up your command-line interface grouping
