@@ -35,7 +35,7 @@ def save_dict_to_env_file(data: dict, file_path: str) -> Path:
     file_path = Path(file_path).expanduser()
     if file_path.exists():
         existing_data = dict(
-            line.split("=") for line in file_path.read_text().splitlines() if line
+            line.split("=", 1) for line in file_path.read_text().splitlines() if line
         )
         existing_data.update(data)
         data = existing_data

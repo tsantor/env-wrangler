@@ -52,7 +52,13 @@ def test_save_empty_dict_to_json_file(tmp_path):
 
 
 def test_save_dict_to_env_file(tmp_path):
-    data = {"key1": "value1", "key2": "value2", "key3": "value3", "key4": "value4"}
+    data = {
+        "key1": "value1",
+        "key2": "value2",
+        "key3": "value3",
+        "key4": "value4",
+        "key5": "value==5",  # Test bug fix
+    }
     file_path = tmp_path / "test.env"
     # Write only a few keys to the file to test that the function appends new keys
     file_path.write_text("key1=value1\nkey2=value2")
@@ -63,7 +69,7 @@ def test_save_dict_to_env_file(tmp_path):
 
     loaded_data = {}
     for line in lines:
-        key, value = line.split("=")
+        key, value = line.split("=", 1)
         loaded_data[key] = value
 
     assert isinstance(output_file, Path)
