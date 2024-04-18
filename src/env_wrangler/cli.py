@@ -25,7 +25,11 @@ def silent_echo(*args, **kwargs):
 
 
 def file_error():
-    click.echo("Path is a file, not a directory. Please provide a directory.", err=True)
+    click.secho(
+        "Path is a file, not a directory. Please provide a directory.",
+        fg="red",
+        err=True,
+    )
 
 
 def common_options(func):
@@ -69,7 +73,7 @@ def extract(path, verbose, format):  # noqa: A002
     secrets_dict = remove_masked_values(secrets_dict)
 
     if not secrets_dict:
-        click.echo("No secrets found to extract.", err=True, color="red")
+        click.secho("No secrets found to extract.", err=True, fg="yellow")
         return
 
     if format == "json":
@@ -98,6 +102,21 @@ def mask(path, verbose) -> None:
         file_error()
         return
 
+    # Ensure that the secrets file exists
+    secret_env = path / ".secrets"
+    secret_json = path / "secrets.json"
+    if not secret_env.exists() and not secret_json.exists():
+        click.secho(
+            (
+                "No secrets file(s) found (.secrets or secrets.json). "
+                "If you have not extracted secrets, please run 'extract' first.\n"
+                "This prevents mistakenly masking all values in the .env file(s) without a backup."
+            ),
+            fg="yellow",
+            err=True,
+        )
+        return
+
     key_words = get_config_value_as_list(config, DEFAULT_SECTION, KEY_WORDS_SETTING)
 
     target_envs = get_config_value_as_list(config, DEFAULT_SECTION, "envs")
@@ -121,16 +140,18 @@ def unmask(path, verbose) -> None:
         file_error()
         return
 
-    key_words = get_config_value_as_list(config, DEFAULT_SECTION, KEY_WORDS_SETTING)
-
     # Ensure that the secrets file exists
     secret_env = path / ".secrets"
     secret_json = path / "secrets.json"
     if not secret_env.exists() and not secret_json.exists():
-        click.echo(
-            "No secrets file(s) found to unmask (.secrets or secrets.json).", err=True
+        click.secho(
+            "No secrets file(s) found (.secrets or secrets.json).",
+            fg="yellow",
+            err=True,
         )
         return
+
+    key_words = get_config_value_as_list(config, DEFAULT_SECTION, KEY_WORDS_SETTING)
 
     target_envs = get_config_value_as_list(config, DEFAULT_SECTION, "envs")
     for file_path in target_envs:

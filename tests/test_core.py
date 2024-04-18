@@ -33,7 +33,7 @@ def test_envs_to_dict(tmp_path):
 def test_save_dict_to_json_file(tmp_path):
     data = {"key1": "value1", "key2": "value2"}
     file_path = tmp_path / "test.json"
-    file_path.write_text(json.dumps(data))
+    file_path.write_text(json.dumps(data, sort_keys=True))
     output_file = save_dict_to_json_file(data, str(file_path))
 
     file_path = Path(file_path)

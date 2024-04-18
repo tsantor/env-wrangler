@@ -23,7 +23,8 @@ def save_dict_to_json_file(data: dict, file_path: Path) -> Path:
         existing_data = json.loads(file_path.read_text())
         existing_data.update(data)
         data = existing_data
-    file_path.write_text(json.dumps(data, indent=2))
+    # We ensure it is sorted before writing
+    file_path.write_text(json.dumps(data, indent=2, sort_keys=True))
     return file_path
 
 
@@ -38,7 +39,8 @@ def save_dict_to_env_file(data: dict, file_path: str) -> Path:
         )
         existing_data.update(data)
         data = existing_data
-    env_content = "\n".join([f"{key}={value}" for key, value in data.items()])
+    # We ensure it is sorted before writing
+    env_content = "\n".join([f"{key}={value}" for key, value in sorted(data.items())])
     file_path.write_text(env_content)
     return file_path
 
