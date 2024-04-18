@@ -14,6 +14,7 @@ from .core import save_dict_to_json_file
 from .core import unmask_sensitive_data_in_file
 from .settings import config
 from .settings import get_config_value_as_list
+from .utils import home_agnostic_path
 
 logger = logging.getLogger(__name__)
 
@@ -66,15 +67,16 @@ def extract(path, verbose, format):  # noqa: A002
     secrets_dict = filter_keys_by_substring(env, key_words)
     if format == "json":
         output_file = save_dict_to_json_file(secrets_dict, path / "secrets.json")
-        click.echo(f"Secrets saved to {output_file}")
+        click.echo(f"Secrets saved to {home_agnostic_path(output_file)}")
     elif format == "env":
         output_file = save_dict_to_env_file(secrets_dict, path / ".secrets")
-        click.echo(f"Secrets saved to {output_file}")
+        click.echo(f"Secrets saved to {home_agnostic_path(output_file)}")
     else:
         output_file1 = save_dict_to_json_file(secrets_dict, path / "secrets.json")
         output_file2 = save_dict_to_env_file(secrets_dict, path / ".secrets")
         if output_file1 and output_file2:
-            click.echo(f"Secrets saved to {output_file1} and {output_file2}")
+            click.echo(f"Secrets saved to {home_agnostic_path(output_file1)}")
+            click.echo(f"Secrets saved to {home_agnostic_path(output_file2)}")
         else:
             click.echo("No secrets found to extract.", err=True)
 
@@ -94,12 +96,11 @@ def mask(path, verbose) -> None:
 
     key_words = get_config_value_as_list(config, DEFAULT_SECTION, KEY_WORDS_SETTING)
 
-    click.echo(f"Masking sensitive data in all .env files in {path}")
     target_envs = get_config_value_as_list(config, DEFAULT_SECTION, "envs")
     for file_path in target_envs:
         file = path / file_path
         if file.exists():
-            click.echo(f"Masking sensitive data in {file}")
+            click.echo(f"Masking sensitive data in {home_agnostic_path(file)}")
             mask_sensitive_data_in_file(file, key_words)
 
 
@@ -127,12 +128,11 @@ def unmask(path, verbose) -> None:
         )
         return
 
-    click.echo(f"Unmasking sensitive data in all .env files in {path}")
     target_envs = get_config_value_as_list(config, DEFAULT_SECTION, "envs")
     for file_path in target_envs:
         env_file = path / file_path
         if env_file.exists():
-            click.echo(f"Unmasking sensitive data in {env_file}")
+            click.echo(f"Unmasking sensitive data in {home_agnostic_path(env_file)}")
             if secret_env.exists():
                 env = envs_to_dict([secret_env])
                 filtered = filter_keys_by_substring(env, key_words)

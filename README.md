@@ -1,10 +1,12 @@
 # Env Wrangler
 
-![Coverage](https://img.shields.io/badge/coverage-97%25-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
 
 ## Overview
 
 Extract secrets from .env files into their own file (either `.secrets` or `secrets.json`). Also provides `mask` and `unmask` options. The resulting secrets file can be leveraged to get your secrets into a 3rd party secrets manager like AWS Secrets Manager or something else.
+
+Plays nice with [cookiecutter-django](https://github.com/cookiecutter/cookiecutter-django).
 
 ## Installation
 
@@ -52,6 +54,7 @@ make open_coverage
 
 # TODO
 - Add tests for cli commands
+- Write secrets to file non-destructively (eg - add key if not there, remove key if no longer present)
 
 ## Issues
 
