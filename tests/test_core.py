@@ -7,6 +7,7 @@ from env_wrangler.core import envs_to_dict
 from env_wrangler.core import filter_keys_by_substring
 from env_wrangler.core import json_to_env
 from env_wrangler.core import mask_sensitive_data_in_file
+from env_wrangler.core import remove_masked_values
 from env_wrangler.core import save_dict_to_env_file
 from env_wrangler.core import save_dict_to_json_file
 from env_wrangler.core import unmask_sensitive_data_in_file
@@ -32,6 +33,7 @@ def test_envs_to_dict(tmp_path):
 def test_save_dict_to_json_file(tmp_path):
     data = {"key1": "value1", "key2": "value2"}
     file_path = tmp_path / "test.json"
+    file_path.write_text(json.dumps(data))
     output_file = save_dict_to_json_file(data, str(file_path))
 
     file_path = Path(file_path)
@@ -50,8 +52,10 @@ def test_save_empty_dict_to_json_file(tmp_path):
 
 
 def test_save_dict_to_env_file(tmp_path):
-    data = {"key1": "value1", "key2": "value2"}
+    data = {"key1": "value1", "key2": "value2", "key3": "value3", "key4": "value4"}
     file_path = tmp_path / "test.env"
+    # Write only a few keys to the file to test that the function appends new keys
+    file_path.write_text("key1=value1\nkey2=value2")
     output_file = save_dict_to_env_file(data, str(file_path))
 
     file_path = Path(file_path)
@@ -89,6 +93,18 @@ def test_filter_keys_by_substring():
         "ACCESS_KEY": "my-access-key",
         "ACCESS_TOKEN": "my-access-token",
     }
+
+
+def test_remove_masked_values():
+    input_dict = {
+        "key1": "value1",
+        "key2": MASK_VALUE,
+        "key3": "value3",
+        "key4": MASK_VALUE,
+    }
+    expected_dict = {"key1": "value1", "key3": "value3"}
+
+    assert remove_masked_values(input_dict) == expected_dict
 
 
 def test_mask_sensitive_data_in_file(tmp_path):

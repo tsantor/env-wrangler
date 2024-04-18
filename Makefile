@@ -64,9 +64,6 @@ pip_list:  ## Run pip list
 pip_freeze:  ## Run pipfreezer
 	pipfreezer
 
-pip_checker:  ## Run pipchecker
-	python3 manage.py pipchecker
-
 # -----------------------------------------------------------------------------
 # Testing
 # -----------------------------------------------------------------------------
@@ -76,6 +73,9 @@ pytest:  ## Run tests
 
 pytest_verbose:  ## Run tests in verbose mode
 	pytest -vvs
+
+pytest_node_ids:  ## show node ids
+	cat .pytest_cache/v/cache/nodeids
 
 coverage:  ## Run tests with coverage
 	coverage run -m pytest && coverage html

@@ -9,6 +9,7 @@ from .constants import KEY_WORDS_SETTING
 from .core import envs_to_dict
 from .core import filter_keys_by_substring
 from .core import mask_sensitive_data_in_file
+from .core import remove_masked_values
 from .core import save_dict_to_env_file
 from .core import save_dict_to_json_file
 from .core import unmask_sensitive_data_in_file
@@ -59,12 +60,18 @@ def extract(path, verbose, format):  # noqa: A002
 
     key_words = get_config_value_as_list(config, DEFAULT_SECTION, KEY_WORDS_SETTING)
 
-    click.echo(f"Extracting secrets from all .env files in {path}")
+    click.echo(f"Extracting secrets from all .env files in {home_agnostic_path(path)}")
     target_envs = get_config_value_as_list(config, DEFAULT_SECTION, "envs")
     env_files = [path / file for file in target_envs]
     env = envs_to_dict(env_files)
 
     secrets_dict = filter_keys_by_substring(env, key_words)
+    secrets_dict = remove_masked_values(secrets_dict)
+
+    if not secrets_dict:
+        click.echo("No secrets found to extract.", err=True, color="red")
+        return
+
     if format == "json":
         output_file = save_dict_to_json_file(secrets_dict, path / "secrets.json")
         click.echo(f"Secrets saved to {home_agnostic_path(output_file)}")
@@ -74,11 +81,8 @@ def extract(path, verbose, format):  # noqa: A002
     else:
         output_file1 = save_dict_to_json_file(secrets_dict, path / "secrets.json")
         output_file2 = save_dict_to_env_file(secrets_dict, path / ".secrets")
-        if output_file1 and output_file2:
-            click.echo(f"Secrets saved to {home_agnostic_path(output_file1)}")
-            click.echo(f"Secrets saved to {home_agnostic_path(output_file2)}")
-        else:
-            click.echo("No secrets found to extract.", err=True)
+        click.echo(f"Secrets saved to {home_agnostic_path(output_file1)}")
+        click.echo(f"Secrets saved to {home_agnostic_path(output_file2)}")
 
 
 @click.command()

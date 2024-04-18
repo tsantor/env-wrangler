@@ -15,20 +15,30 @@ def envs_to_dict(env_files: list[str]) -> dict:
 
 
 def save_dict_to_json_file(data: dict, file_path: Path) -> Path:
-    """Save a dictionary to a JSON file."""
+    """Save a dictionary to a JSON file (non-destructive)."""
     if not data:
         return None
     file_path = Path(file_path).expanduser()
+    if file_path.exists():
+        existing_data = json.loads(file_path.read_text())
+        existing_data.update(data)
+        data = existing_data
     file_path.write_text(json.dumps(data, indent=2))
     return file_path
 
 
 def save_dict_to_env_file(data: dict, file_path: str) -> Path:
-    """Save a dictionary to an env file."""
+    """Save a dictionary to an env file (non-destructive)."""
     if not data:
         return None
-    env_content = "\n".join([f"{key}={value}" for key, value in data.items()])
     file_path = Path(file_path).expanduser()
+    if file_path.exists():
+        existing_data = dict(
+            line.split("=") for line in file_path.read_text().splitlines() if line
+        )
+        existing_data.update(data)
+        data = existing_data
+    env_content = "\n".join([f"{key}={value}" for key, value in data.items()])
     file_path.write_text(env_content)
     return file_path
 
@@ -40,13 +50,20 @@ def filter_keys_by_substring(input_dict: dict, words_to_keep: list[str]) -> dict
     :param input_dict: Dictionary to be filtered.
     :param words_to_keep: List of words to check against the keys in the dictionary.
     """
-    secrets = {
+    return {
         key: input_dict[key]
         for key in input_dict
         if any(word in key for word in words_to_keep)
     }
-    # Safeguard to prevent extracting masked values
-    return {key: value for key, value in secrets.items() if value != MASK_VALUE}
+
+
+def remove_masked_values(input_dict: dict) -> dict:
+    """
+    Filters a dictionary to remove masked values.
+
+    :param input_dict: Dictionary to be filtered.
+    """
+    return {key: value for key, value in input_dict.items() if value != MASK_VALUE}
 
 
 def mask_sensitive_data_in_file(file_path: str, filter_keys: list) -> Path:
