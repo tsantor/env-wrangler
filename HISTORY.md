@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.1.4 (2024-04-19)
+
+- Bug fix when getting key from .env file for comparision
+
 ## 0.1.3 (2024-04-19)
 
 - Added `ignore_keys` to config for keys (exact key names) to always ignore even if they contain `key_word`.
