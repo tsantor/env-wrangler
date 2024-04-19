@@ -5,6 +5,7 @@ from pathlib import Path
 import click  # https://click.palletsprojects.com/
 
 from .constants import DEFAULT_SECTION
+from .constants import IGNORE_KEYS_SETTING
 from .constants import KEY_WORDS_SETTING
 from .core import envs_to_dict
 from .core import filter_keys_by_substring
@@ -118,6 +119,7 @@ def mask(path, verbose) -> None:
         return
 
     key_words = get_config_value_as_list(config, DEFAULT_SECTION, KEY_WORDS_SETTING)
+    ignore_keys = get_config_value_as_list(config, DEFAULT_SECTION, IGNORE_KEYS_SETTING)
 
     masked_files = []
     target_envs = get_config_value_as_list(config, DEFAULT_SECTION, "envs")
@@ -125,7 +127,7 @@ def mask(path, verbose) -> None:
         file = path / file_path
         if file.exists():
             masked_files.append(file)
-            mask_sensitive_data_in_file(file, key_words)
+            mask_sensitive_data_in_file(file, key_words, ignore_keys)
 
     # Let the user know which files were masked
     if masked_files:

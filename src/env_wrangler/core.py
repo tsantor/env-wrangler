@@ -68,7 +68,9 @@ def remove_masked_values(input_dict: dict) -> dict:
     return {key: value for key, value in input_dict.items() if value != MASK_VALUE}
 
 
-def mask_sensitive_data_in_file(file_path: str, filter_keys: list) -> Path:
+def mask_sensitive_data_in_file(
+    file_path: str, filter_keys: list, ignore_keys=None
+) -> Path:
     """Mask sensitive data in a .env file.
 
     Args:
@@ -78,11 +80,14 @@ def mask_sensitive_data_in_file(file_path: str, filter_keys: list) -> Path:
     file_path = Path(file_path).expanduser()
     lines = file_path.read_text().splitlines()
 
+    ignore_keys = ignore_keys or []
+
     masked_lines = []
     for line in lines:
-        for key in filter_keys:
-            if key in line.split("=")[0]:
-                line = line.split("=")[0] + f"={MASK_VALUE}"  # noqa: PLW2901
+        for check_key in filter_keys:
+            key, _ = line.split("=", 1)
+            if check_key in key and key not in ignore_keys:
+                line = key + f"={MASK_VALUE}"  # noqa: PLW2901
         masked_lines.append(line)
 
     file_path.write_text("\n".join(masked_lines))
@@ -102,8 +107,8 @@ def unmask_sensitive_data_in_file(file_path: str, replacements: dict) -> Path:
     replaced_lines = []
     for line in lines:
         for key, value in replacements.items():
-            if key in line.split("=")[0]:
-                line = line.split("=")[0] + "=" + value  # noqa: PLW2901
+            if key in line.split("=", 1)[0]:
+                line = line.split("=", 1)[0] + "=" + value  # noqa: PLW2901
         replaced_lines.append(line)
 
     file_path.write_text("\n".join(replaced_lines))

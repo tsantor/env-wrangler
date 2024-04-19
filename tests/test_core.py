@@ -116,10 +116,14 @@ def test_remove_masked_values():
 def test_mask_sensitive_data_in_file(tmp_path):
     # Create a .env file in the temporary directory
     env_file = tmp_path / ".env"
-    env_file.write_text("SECRET_KEY=secret\nPASSWORD=password\nFOO=bar\nBAR=baz")
+    env_file.write_text(
+        "SECRET_KEY=secret\nPASSWORD=password\nFOO=bar\nBAR=baz\nIGNORED_KEY=ignored"
+    )
 
     # Call mask_sensitive_data with the path to the .env file and a list of sensitive keys
-    output_file = mask_sensitive_data_in_file(str(env_file), ["SECRET_KEY", "PASSWORD"])
+    output_file = mask_sensitive_data_in_file(
+        str(env_file), ["KEY", "PASSWORD"], ["IGNORED_KEY"]
+    )
 
     # Load the .env file and check that the sensitive keys have been masked
     env_vars = dotenv_values(str(env_file))
@@ -128,6 +132,7 @@ def test_mask_sensitive_data_in_file(tmp_path):
     assert env_vars["PASSWORD"] == MASK_VALUE  # noqa: S105
     assert env_vars["FOO"] == "bar"
     assert env_vars["BAR"] == "baz"
+    assert env_vars["IGNORED_KEY"] == "ignored"
 
 
 def test_unmask_sensitive_data_in_file(tmp_path):
@@ -165,7 +170,7 @@ def test_json_to_env(tmp_path):
 
     # Load the .env file and check that it contains the correct data
     env_lines = env_file.read_text().splitlines()
-    env_data = dict(line.split("=") for line in env_lines)
+    env_data = dict(line.split("=", 1) for line in env_lines)
 
     assert isinstance(output_file, Path)
     assert env_data == data
