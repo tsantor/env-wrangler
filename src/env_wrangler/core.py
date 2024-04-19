@@ -85,7 +85,7 @@ def mask_sensitive_data_in_file(
     masked_lines = []
     for line in lines:
         for check_key in filter_keys:
-            key, _ = line.split("=", 1)
+            key = line.split("=", 1)[0]
             if check_key in key and key not in ignore_keys:
                 line = key + f"={MASK_VALUE}"  # noqa: PLW2901
         masked_lines.append(line)
