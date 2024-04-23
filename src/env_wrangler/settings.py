@@ -33,6 +33,5 @@ if not LOG_FILE.exists():
 
 # -----------------------------------------------------------------------------
 
-
 with CONFIG_FILE.open("r") as f:
     config = toml.load(f)

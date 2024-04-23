@@ -26,15 +26,7 @@ env-wrangler unmask --path ".envs/.production"
 
 > **NOTE:** For help run `env-wrangler --help` or for a specific command run `env-wrangler {command} --help`.
 
-Upon first run, `env-wrangler` creates a `~/.env-wrangler/env-wrangler.cfg` file. You can modify this to add/remove key words based on your needs.
-
-```ini
-[default]
-; Any environment variable that contains one of the following key words will be considered a secret
-key_words = ACCESS_KEY, ACCESS_TOKEN, API_KEY, CLIENT_ID, CLIENT_SECRET, CONSUMER_KEY, CREDENTIALS, ENCRYPTION_KEY, HASH, JWT_SECRET, MASTER_KEY, OAUTH_TOKEN, PASSWORD, PRIVATE_KEY, SALT, SECRET, TOKEN, USER
-; The env files that will be considered for extraction
-envs = .env, .django, .postgres
-```
+Upon first run, `env-wrangler` creates a `~/.env-wrangler/env-wrangler.toml` file. You can modify this to add/remove key words based on your needs.
 
 ## Development
 
