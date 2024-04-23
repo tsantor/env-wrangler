@@ -18,10 +18,10 @@ python3 -m pip install env-wrangler
 The `path` parameter is a directory, not a file!
 
 ```bash
-env-wrangler extract --path=".envs/.production"
+env-wrangler extract --path ".envs/.production"
 # Only run if you've previously run extract
-env-wrangler mask --path=".envs/.production"
-env-wrangler unmask --path=".envs/.production"
+env-wrangler mask --path ".envs/.production"
+env-wrangler unmask --path ".envs/.production"
 ```
 
 > **NOTE:** For help run `env-wrangler --help` or for a specific command run `env-wrangler {command} --help`.

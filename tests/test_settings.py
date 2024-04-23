@@ -1,9 +1,7 @@
-import configparser
 from pathlib import Path
 
 import pkg_resources
 from env_wrangler.settings import copy_resource_file
-from env_wrangler.settings import get_config_value_as_list
 
 
 def test_copy_resource_file(tmp_path):
@@ -23,13 +21,3 @@ def test_copy_resource_file(tmp_path):
     assert dest_file.read_text() == "Test content"
 
     source_file.unlink()
-
-
-def test_get_config_value_as_list():
-    # Create a ConfigParser object and add a section with a key
-    config = configparser.ConfigParser()
-    config.add_section("default")
-    config.set("default", "key_words", "item1, item2, item3")
-
-    result = get_config_value_as_list(config, "default", "key_words")
-    assert result == ["item1", "item2", "item3"]

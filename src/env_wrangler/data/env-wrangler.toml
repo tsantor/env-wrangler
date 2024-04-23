@@ -1,0 +1,39 @@
+[default]
+# Any environment variable that contains one of the following key words will be considered a secret
+# KEY, USER, PASS, TOKEN may be too broad and may result in false positives so use with caution
+key_words = [
+  "ACCESS_KEY",
+  "ACCESS_TOKEN",
+  "API_KEY",
+  "API_SECRET",
+  "AUTH_KEY",
+  "AUTH_TOKEN",
+  "CLIENT_ID",
+  "CLIENT_SECRET",
+  "CONSUMER_KEY",
+  "CREDENTIALS",
+  "ENCRYPTION_KEY",
+  "HASH",
+  "JWT_SECRET",
+  "KEY",
+  "MASTER_KEY",
+  "OAUTH_TOKEN",
+  "PASS",
+  "PASSWORD",
+  "PRIVATE_KEY",
+  "SALT",
+  "SECRET",
+   "STORAGE_KEY",
+  "SUBSCRIPTION_ID",
+  "TOKEN",
+  "USER",
+]
+
+# Any environment variable exactly matches one of the following key words will be ignored
+ignore_keys = []
+# The env files that will be considered for extraction
+envs = [
+  ".env",
+  ".django",
+  ".postgres",
+]

@@ -5,6 +5,7 @@ from pathlib import Path
 import click  # https://click.palletsprojects.com/
 
 from .constants import DEFAULT_SECTION
+from .constants import ENVS_SETTING
 from .constants import IGNORE_KEYS_SETTING
 from .constants import KEY_WORDS_SETTING
 from .core import envs_to_dict
@@ -15,7 +16,6 @@ from .core import save_dict_to_env_file
 from .core import save_dict_to_json_file
 from .core import unmask_sensitive_data_in_file
 from .settings import config
-from .settings import get_config_value_as_list
 from .utils import home_agnostic_path
 
 logger = logging.getLogger(__name__)
@@ -63,10 +63,10 @@ def extract(path, verbose, format):  # noqa: A002
         file_error()
         return
 
-    key_words = get_config_value_as_list(config, DEFAULT_SECTION, KEY_WORDS_SETTING)
-
     click.echo(f"Extracting secrets from all .env files in {home_agnostic_path(path)}")
-    target_envs = get_config_value_as_list(config, DEFAULT_SECTION, "envs")
+
+    key_words = config[DEFAULT_SECTION][KEY_WORDS_SETTING]
+    target_envs = config[DEFAULT_SECTION][ENVS_SETTING]
     env_files = [path / file for file in target_envs]
     env = envs_to_dict(env_files)
 
@@ -118,11 +118,11 @@ def mask(path, verbose) -> None:
         )
         return
 
-    key_words = get_config_value_as_list(config, DEFAULT_SECTION, KEY_WORDS_SETTING)
-    ignore_keys = get_config_value_as_list(config, DEFAULT_SECTION, IGNORE_KEYS_SETTING)
+    key_words = config[DEFAULT_SECTION][KEY_WORDS_SETTING]
+    ignore_keys = config[DEFAULT_SECTION][IGNORE_KEYS_SETTING]
+    target_envs = config[DEFAULT_SECTION][ENVS_SETTING]
 
     masked_files = []
-    target_envs = get_config_value_as_list(config, DEFAULT_SECTION, "envs")
     for file_path in target_envs:
         file = path / file_path
         if file.exists():
@@ -160,10 +160,10 @@ def unmask(path, verbose) -> None:
         )
         return
 
-    key_words = get_config_value_as_list(config, DEFAULT_SECTION, KEY_WORDS_SETTING)
+    key_words = config[DEFAULT_SECTION][KEY_WORDS_SETTING]
+    target_envs = config[DEFAULT_SECTION][ENVS_SETTING]
 
     unmasked_files = []
-    target_envs = get_config_value_as_list(config, DEFAULT_SECTION, "envs")
     for file_path in target_envs:
         env_file = path / file_path
         if env_file.exists():

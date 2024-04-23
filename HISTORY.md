@@ -2,6 +2,10 @@
 
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.1.5 (2024-04-23)
+
+- Moved from `configparser` to `toml` for configuration.
+
 ## 0.1.4 (2024-04-19)
 
 - Bug fix when getting key from .env file for comparision
