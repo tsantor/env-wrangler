@@ -1,0 +1,62 @@
+set shell := ["bash", "-cu"]
+# set shell := ["powershell.exe", "-NoLogo", "-Command"]
+
+# List all available recipes
+default:
+  @just --list
+
+# -----------------------------------------------------------------------------
+# Environment
+# -----------------------------------------------------------------------------
+
+# Create virtual environment (uses `uv`)
+[group('environment')]
+env:
+  uv venv
+
+# Remove virtual environment
+[group('environment')]
+env-remove:
+  rm -rf .venv/
+
+# Recreate environment from scratch
+[group('environment')]
+env-recreate: env-remove env pip-install-editable
+
+# -----------------------------------------------------------------------------
+# Pip
+# -----------------------------------------------------------------------------
+
+# Install in editable mode
+[group('uv')]
+pip-install-editable:
+  uv sync --all-groups
+  uv pip install -e .
+
+# Run pip list
+[group('uv')]
+pip-list:
+  uv pip list
+
+# -----------------------------------------------------------------------------
+# mkdocs
+# -----------------------------------------------------------------------------
+
+# Build source and wheel distributions.
+[group('mkdocs')]
+mkdocs-build:
+  uv run python -m build --sdist --wheel
+
+# Run MkDocs dev server with verbose watch logging.
+[group('mkdocs')]
+mkdocs-serve:
+  uv run mkdocs serve -a 127.0.0.5:8989 -f mkdocs.yml -v --watch docs --watch mkdocs.yml --livereload
+
+# -----------------------------------------------------------------------------
+# Network
+# -----------------------------------------------------------------------------
+
+# Add loopback alias for local development on macOS (requires sudo).
+[group('network')]
+add-loopback:
+  sudo ifconfig lo0 alias 127.0.0.5 up

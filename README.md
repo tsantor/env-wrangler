@@ -50,6 +50,10 @@ just env
 just pip-install-editable
 ```
 
+Architecture guardrails:
+
+- [DDD / Clean Architecture Guardrails](docs/architecture.md)
+
 ## Testing
 
 ```bash
