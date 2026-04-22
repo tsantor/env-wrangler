@@ -45,7 +45,7 @@ pip-list:
 # Build source and wheel distributions.
 [group('mkdocs')]
 mkdocs-build:
-  uv run python -m build --sdist --wheel
+  uv run mkdocs build -f mkdocs.yml
 
 # Run MkDocs dev server with verbose watch logging.
 [group('mkdocs')]
