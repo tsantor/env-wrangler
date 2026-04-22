@@ -4,8 +4,8 @@ site_author: tsantor@xstudios.com
 
 copyright: Copyright &copy; 2026 - X Studios™, Inc.
 
-# repo_url: https://bitbucket.org/xstudios/docs/
-# repo_name: Bitbucket
+repo_url: https://bitbucket.org/tsantor/env-wrangler/
+repo_name: Bitbucket
 
 # Configuration
 theme:
@@ -17,7 +17,7 @@ theme:
   icon:
     repo: fontawesome/brands/git-alt
   favicon: images/favicon.png
-  logo: img/x_x_white.svg
+  logo: img/x-logo-white.svg
   font:
     text: Raleway
     code: Roboto Mono
@@ -78,10 +78,10 @@ plugins:
   - to-pdf:
       enabled_if_env: ENABLE_PDF_EXPORT
       # author: X Studios Team
-      output_path: seven-playdoh-documentation.pdf
-      cover_title: SEVEN Play-Doh Documentation
+      output_path: env-wrangler-documentation.pdf
+      cover_title: Env Wrangler
       cover_subtitle: Technical Documentation
-      cover_logo: img/logo-playdoh.png
+      cover_logo: img/xstudios-logo-black.svg
       back_cover: true
       toc_level: 2
       ordered_chapter_level: 3

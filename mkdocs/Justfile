@@ -47,6 +47,11 @@ pip-list:
 mkdocs-build:
   uv run mkdocs build -f mkdocs.yml
 
+# Build PDF documentation
+[group('mkdocs')]
+mkdocs-build-pdf:
+  ENABLE_PDF_EXPORT=1 uv run mkdocs build -f mkdocs.yml
+
 # Run MkDocs dev server with verbose watch logging.
 [group('mkdocs')]
 mkdocs-serve:
