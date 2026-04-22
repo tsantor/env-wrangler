@@ -3,8 +3,6 @@ from pathlib import Path
 
 from dotenv import dotenv_values
 
-from .constants import MASK_VALUE
-
 
 def envs_to_dict(env_files: list[str]) -> dict:
     """Read env files, merge them and return a dict"""
@@ -65,7 +63,7 @@ def remove_masked_values(input_dict: dict) -> dict:
 
     :param input_dict: Dictionary to be filtered.
     """
-    return {key: value for key, value in input_dict.items() if value != MASK_VALUE}
+    return {key: value for key, value in input_dict.items() if value != "********"}
 
 
 def mask_sensitive_data_in_file(
@@ -87,7 +85,7 @@ def mask_sensitive_data_in_file(
         for check_key in filter_keys:
             key = line.split("=", 1)[0]
             if check_key in key and key not in ignore_keys:
-                line = key + f"={MASK_VALUE}"  # noqa: PLW2901
+                line = key + "=********"  # noqa: PLW2901
         masked_lines.append(line)
 
     file_path.write_text("\n".join(masked_lines))

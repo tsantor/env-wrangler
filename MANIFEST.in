@@ -1,8 +1,0 @@
-include AUTHORS.md
-include HISTORY.md
-include README.md
-include LICENSE
-
-recursive-include requirements/ *.txt
-
-recursive-include src/env_wrangler/data/ *.toml

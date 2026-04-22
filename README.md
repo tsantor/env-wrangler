@@ -1,6 +1,6 @@
 # Env Wrangler
 
-![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-44.29%25-red)
 
 ## Overview
 
@@ -15,6 +15,7 @@ python3 -m pip install env-wrangler
 ```
 
 ## Usage
+
 The `path` parameter is a directory, not a file!
 
 ```bash
@@ -45,6 +46,7 @@ make open_coverage
 ```
 
 # TODO
+
 - Add tests for cli commands
 - Write secrets to file non-destructively (eg - add key if not there, remove key if no longer present)
 

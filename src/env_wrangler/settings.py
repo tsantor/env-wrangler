@@ -1,8 +1,8 @@
+import importlib.resources as importlib_resources
 import logging
 import shutil
 from pathlib import Path
 
-import pkg_resources
 import toml
 
 logger = logging.getLogger(__name__)
@@ -11,16 +11,15 @@ logger = logging.getLogger(__name__)
 
 
 def copy_resource_file(filename, dst):
-    """Copy data files from package data folder."""
-    # Create destination dir if needed
+    """Copy data files from package data folder using importlib.resources."""
     dir_path = Path(dst).parent
     if not dir_path.is_dir():
-        dir_path.mkdir()
+        dir_path.mkdir(parents=True, exist_ok=True)
 
-    # Copy data file to destination
-    src = pkg_resources.resource_filename("env_wrangler", f"data/{filename}")
-    dst = str(Path(dir_path).expanduser())
-    shutil.copy2(src, dst)
+    # Use importlib.resources to access the data file
+    src_path = importlib_resources.files("env_wrangler.data").joinpath(filename)
+    with src_path.open("rb") as src_file, Path(dst).open("wb") as dst_file:
+        shutil.copyfileobj(src_file, dst_file)
 
 
 CONFIG_FILE = Path("~/.env-wrangler/env-wrangler.toml").expanduser()

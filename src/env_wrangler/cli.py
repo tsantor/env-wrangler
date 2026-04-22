@@ -4,10 +4,6 @@ from pathlib import Path
 
 import click  # https://click.palletsprojects.com/
 
-from .constants import DEFAULT_SECTION
-from .constants import ENVS_SETTING
-from .constants import IGNORE_KEYS_SETTING
-from .constants import KEY_WORDS_SETTING
 from .core import envs_to_dict
 from .core import filter_keys_by_substring
 from .core import mask_sensitive_data_in_file
@@ -65,8 +61,8 @@ def extract(path, verbose, format):  # noqa: A002
 
     click.echo(f"Extracting secrets from all .env files in {home_agnostic_path(path)}")
 
-    key_words = config[DEFAULT_SECTION][KEY_WORDS_SETTING]
-    target_envs = config[DEFAULT_SECTION][ENVS_SETTING]
+    key_words = config["default"]["key_words"]
+    target_envs = config["default"]["envs"]
     env_files = [path / file for file in target_envs]
     env = envs_to_dict(env_files)
 
@@ -118,9 +114,9 @@ def mask(path, verbose) -> None:
         )
         return
 
-    key_words = config[DEFAULT_SECTION][KEY_WORDS_SETTING]
-    ignore_keys = config[DEFAULT_SECTION][IGNORE_KEYS_SETTING]
-    target_envs = config[DEFAULT_SECTION][ENVS_SETTING]
+    key_words = config["default"]["key_words"]
+    ignore_keys = config["default"]["ignore_keys"]
+    target_envs = config["default"]["envs"]
 
     masked_files = []
     for file_path in target_envs:
@@ -160,8 +156,8 @@ def unmask(path, verbose) -> None:
         )
         return
 
-    key_words = config[DEFAULT_SECTION][KEY_WORDS_SETTING]
-    target_envs = config[DEFAULT_SECTION][ENVS_SETTING]
+    key_words = config["default"]["key_words"]
+    target_envs = config["default"]["envs"]
 
     unmasked_files = []
     for file_path in target_envs:
