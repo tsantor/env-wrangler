@@ -23,7 +23,7 @@ key_words = [
   "PRIVATE_KEY",
   "SALT",
   "SECRET",
-   "STORAGE_KEY",
+  "STORAGE_KEY",
   "SUBSCRIPTION_ID",
   "TOKEN",
   "USER",
@@ -32,8 +32,4 @@ key_words = [
 # Any environment variable exactly matches one of the following key words will be ignored
 ignore_keys = []
 # The env files that will be considered for extraction
-envs = [
-  ".env",
-  ".django",
-  ".postgres",
-]
+envs = [".env", ".django", ".postgres"]

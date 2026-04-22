@@ -1,7 +1,5 @@
 # Env Wrangler
 
-![Coverage](https://img.shields.io/badge/coverage-44.29%25-red)
-
 ## Overview
 
 Extract secrets from .env files into their own file (either `.secrets` or `secrets.json`). Also provides `mask` and `unmask` options. The resulting secrets file can be leveraged to get your secrets into a 3rd party secrets manager like AWS Secrets Manager or something else.
@@ -27,29 +25,36 @@ env-wrangler unmask --path ".envs/.production"
 
 > **NOTE:** For help run `env-wrangler --help` or for a specific command run `env-wrangler {command} --help`.
 
-Upon first run, `env-wrangler` creates a `~/.env-wrangler/env-wrangler.toml` file. You can modify this to add/remove key words based on your needs.
+On first run, `env-wrangler` creates `~/.env-wrangler/env-wrangler.toml`.
+The default config section supports:
+
+- `key_words`: substrings used to identify secret-like keys
+- `ignore_keys`: exact keys to skip even if they match `key_words`
+- `envs`: env files to scan (for example `.env`, `.django`, `.postgres`)
 
 ## Development
 
 ```bash
-make env
-make pip_install
-make pip_install_editable
+just --list
+just env
+just pip-install-editable
 ```
 
 ## Testing
 
 ```bash
-make pytest
-make coverage
-make open_coverage
+just pytest
+just coverage
+just open-coverage
 ```
 
-# TODO
+For quick local quality checks:
 
-- Add tests for cli commands
-- Write secrets to file non-destructively (eg - add key if not there, remove key if no longer present)
+```bash
+just check
+```
 
 ## Issues
 
-If you experience any issues, please create an [issue](https://github.com/tsantor/env-wrangler/issues) on Github.
+If you experience any issues, please create one in the
+[Bitbucket issue tracker](https://bitbucket.org/tsantor/env-wrangler/issues).
