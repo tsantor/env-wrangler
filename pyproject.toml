@@ -1,7 +1,7 @@
 [project]
 name = "env-wrangler"
 description = "Extract secrets from .env files into their own file (either `.secrets` or `secrets.json`). Also provides `mask` and `unmask` options. The resulting secrets file can be leveraged to get your secrets into a 3rd party secrets manager like AWS Secrets Manager or something else."
-version = "0.1.6"
+version = "0.1.7"
 dynamic = ["readme"]
 requires-python = ">=3.11"
 authors = [

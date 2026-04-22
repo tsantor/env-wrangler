@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file. This project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.1.7 (2026-04-22)
+
+- Moved project tooling and packaging workflow to Hatch and `xapp-tools`.
+- Improved automated test coverage, including CLI command coverage updates.
+- Removed `pkg_resources` usage and moved resource loading to `importlib.resources`.
+
 ## 0.1.6 (2025-03-31)
 
 - Fixed missing dependency and data file.
