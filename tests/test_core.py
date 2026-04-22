@@ -3,14 +3,14 @@ from pathlib import Path
 
 from dotenv import dotenv_values
 
-from env_wrangler.core import envs_to_dict
-from env_wrangler.core import filter_keys_by_substring
-from env_wrangler.core import json_to_env
-from env_wrangler.core import mask_sensitive_data_in_file
-from env_wrangler.core import remove_masked_values
-from env_wrangler.core import save_dict_to_env_file
-from env_wrangler.core import save_dict_to_json_file
-from env_wrangler.core import unmask_sensitive_data_in_file
+from env_wrangler.domain.secrets import filter_keys_by_substring
+from env_wrangler.domain.secrets import remove_masked_values
+from env_wrangler.infrastructure.files import envs_to_dict
+from env_wrangler.infrastructure.files import json_to_env
+from env_wrangler.infrastructure.files import mask_sensitive_data_in_file
+from env_wrangler.infrastructure.files import save_dict_to_env_file
+from env_wrangler.infrastructure.files import save_dict_to_json_file
+from env_wrangler.infrastructure.files import unmask_sensitive_data_in_file
 
 
 def test_envs_to_dict(tmp_path):

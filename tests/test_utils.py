@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from env_wrangler.utils import home_agnostic_path
+from env_wrangler.infrastructure.paths import home_agnostic_path
 
 
 def test_home_agnostic_path(tmp_path):

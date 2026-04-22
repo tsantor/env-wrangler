@@ -30,7 +30,7 @@ def test_extract_path_is_file(tmp_path, monkeypatch):
     input_file = tmp_path / "not_a_directory"
     input_file.write_text("FOO=bar")
 
-    result = runner.invoke(cli, ["extract", "--path", str(input_file), "--verbose"])
+    result = runner.invoke(cli, ["extract", "--path", str(input_file)])
 
     assert result.exit_code == 0
     assert "Path is a file, not a directory." in result.output
@@ -51,7 +51,7 @@ def test_extract_no_secrets_found(tmp_path, monkeypatch):
     write_env_file(tmp_path / ".env", {"FOO": "bar"})
     write_env_file(tmp_path / ".django", {"BAR": "baz"})
 
-    result = runner.invoke(cli, ["extract", "--path", str(tmp_path), "--verbose"])
+    result = runner.invoke(cli, ["extract", "--path", str(tmp_path)])
 
     assert result.exit_code == 0
     assert "No secrets found to extract." in result.output
@@ -83,7 +83,7 @@ def test_extract_json_format(tmp_path, monkeypatch):
     write_env_file(tmp_path / ".django", {"OTHER_SECRET": "other-secret"})
 
     result = runner.invoke(
-        cli, ["extract", "--path", str(tmp_path), "--format", "json", "--verbose"]
+        cli, ["extract", "--path", str(tmp_path), "--format", "json"]
     )
 
     assert result.exit_code == 0
@@ -111,9 +111,7 @@ def test_extract_env_format(tmp_path, monkeypatch):
     write_env_file(tmp_path / ".env", {"SECRET_KEY": "secret", "FOO": "bar"})
     write_env_file(tmp_path / ".django", {"PASSWORD": "password"})
 
-    result = runner.invoke(
-        cli, ["extract", "--path", str(tmp_path), "--format", "env", "--verbose"]
-    )
+    result = runner.invoke(cli, ["extract", "--path", str(tmp_path), "--format", "env"])
 
     assert result.exit_code == 0
     saved = read_env_file(tmp_path / ".secrets")
@@ -136,7 +134,7 @@ def test_extract_default_format_saves_both_files(tmp_path, monkeypatch):
     write_env_file(tmp_path / ".env", {"SECRET_KEY": "secret"})
     write_env_file(tmp_path / ".django", {"PASSWORD": "password"})
 
-    result = runner.invoke(cli, ["extract", "--path", str(tmp_path), "--verbose"])
+    result = runner.invoke(cli, ["extract", "--path", str(tmp_path)])
 
     assert result.exit_code == 0
     assert (tmp_path / "secrets.json").exists()
@@ -158,7 +156,7 @@ def test_mask_path_is_file(tmp_path, monkeypatch):
     input_file = tmp_path / "not_a_directory"
     input_file.write_text("FOO=bar")
 
-    result = runner.invoke(cli, ["mask", "--path", str(input_file), "--verbose"])
+    result = runner.invoke(cli, ["mask", "--path", str(input_file)])
 
     assert result.exit_code == 0
     assert "Path is a file, not a directory." in result.output
@@ -178,7 +176,7 @@ def test_mask_requires_secrets_file(tmp_path, monkeypatch):
     runner = CliRunner()
     write_env_file(tmp_path / ".env", {"SECRET_KEY": "secret", "FOO": "bar"})
 
-    result = runner.invoke(cli, ["mask", "--path", str(tmp_path), "--verbose"])
+    result = runner.invoke(cli, ["mask", "--path", str(tmp_path)])
 
     assert result.exit_code == 0
     assert "No secrets file(s) found (.secrets or secrets.json)." in result.output
@@ -208,7 +206,7 @@ def test_mask_masks_matching_keys_and_respects_ignore_keys(tmp_path, monkeypatch
         },
     )
 
-    result = runner.invoke(cli, ["mask", "--path", str(tmp_path), "--verbose"])
+    result = runner.invoke(cli, ["mask", "--path", str(tmp_path)])
 
     assert result.exit_code == 0
     assert "Masked sensitive data in the following envs:" in result.output
@@ -235,7 +233,7 @@ def test_unmask_path_is_file(tmp_path, monkeypatch):
     input_file = tmp_path / "not_a_directory"
     input_file.write_text("FOO=bar")
 
-    result = runner.invoke(cli, ["unmask", "--path", str(input_file), "--verbose"])
+    result = runner.invoke(cli, ["unmask", "--path", str(input_file)])
 
     assert result.exit_code == 0
     assert "Path is a file, not a directory." in result.output
@@ -255,7 +253,7 @@ def test_unmask_requires_secrets_file(tmp_path, monkeypatch):
     runner = CliRunner()
     write_env_file(tmp_path / ".env", {"SECRET_KEY": "********"})
 
-    result = runner.invoke(cli, ["unmask", "--path", str(tmp_path), "--verbose"])
+    result = runner.invoke(cli, ["unmask", "--path", str(tmp_path)])
 
     assert result.exit_code == 0
     assert "No secrets file(s) found (.secrets or secrets.json)." in result.output
@@ -280,7 +278,7 @@ def test_unmask_uses_secrets_json_when_env_missing(tmp_path, monkeypatch):
         json.dumps({"SECRET_KEY": "from-json", "PASSWORD": "json-pass"})
     )
 
-    result = runner.invoke(cli, ["unmask", "--path", str(tmp_path), "--verbose"])
+    result = runner.invoke(cli, ["unmask", "--path", str(tmp_path)])
 
     assert result.exit_code == 0
     assert "Unmasked sensitive data in the following envs:" in result.output
@@ -313,10 +311,34 @@ def test_unmask_prefers_secrets_env_over_json(tmp_path, monkeypatch):
         json.dumps({"SECRET_KEY": "from-json", "PASSWORD": "json-pass"})
     )
 
-    result = runner.invoke(cli, ["unmask", "--path", str(tmp_path), "--verbose"])
+    result = runner.invoke(cli, ["unmask", "--path", str(tmp_path)])
 
     assert result.exit_code == 0
     assert read_env_file(tmp_path / ".env") == {
         "SECRET_KEY": "from-env-file",
         "PASSWORD": "env-pass",
     }
+
+
+def test_extract_help_does_not_show_verbose_option():
+    runner = CliRunner()
+    result = runner.invoke(cli, ["extract", "--help"])
+
+    assert result.exit_code == 0
+    assert "--verbose" not in result.output
+
+
+def test_mask_help_does_not_show_verbose_option():
+    runner = CliRunner()
+    result = runner.invoke(cli, ["mask", "--help"])
+
+    assert result.exit_code == 0
+    assert "--verbose" not in result.output
+
+
+def test_unmask_help_does_not_show_verbose_option():
+    runner = CliRunner()
+    result = runner.invoke(cli, ["unmask", "--help"])
+
+    assert result.exit_code == 0
+    assert "--verbose" not in result.output

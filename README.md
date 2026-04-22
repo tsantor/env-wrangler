@@ -1,5 +1,7 @@
 # Env Wrangler
 
+![Coverage](https://img.shields.io/badge/coverage-99.53%25-brightgreen)
+
 ## Overview
 
 Extract secrets from .env files into their own file (either `.secrets` or `secrets.json`). Also provides `mask` and `unmask` options. The resulting secrets file can be leveraged to get your secrets into a 3rd party secrets manager like AWS Secrets Manager or something else.
@@ -8,8 +10,16 @@ Plays nice with [cookiecutter-django](https://github.com/cookiecutter/cookiecutt
 
 ## Installation
 
+Core/library install:
+
 ```bash
-python3 -m pip install env-wrangler
+uv add env-wrangler
+```
+
+CLI install:
+
+```bash
+uv add "env-wrangler[cli]"
 ```
 
 ## Usage
@@ -57,4 +67,4 @@ just check
 ## Issues
 
 If you experience any issues, please create one in the
-[Bitbucket issue tracker](https://bitbucket.org/tsantor/env-wrangler/issues).
+[issue tracker](https://bitbucket.org/tsantor/env-wrangler/issues).

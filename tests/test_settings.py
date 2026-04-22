@@ -1,7 +1,7 @@
 import importlib.resources as importlib_resources
 from pathlib import Path
 
-from env_wrangler.settings import copy_resource_file
+from env_wrangler.infrastructure.config import copy_resource_file
 
 
 def test_copy_resource_file(tmp_path):

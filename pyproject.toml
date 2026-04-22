@@ -18,10 +18,12 @@ classifiers = [
   "Programming Language :: Python :: 3.14",
 ]
 dependencies = [
-    "click>=8.1.8",
     "python-dotenv>=1.0.1",
-    "setuptools>=75.3.2",
-    "toml>=0.10.2",
+]
+
+[project.optional-dependencies]
+cli = [
+  "click>=8.1.8",
 ]
 
 [dependency-groups]
@@ -33,6 +35,7 @@ dev=[
   "xapp-tools>=0.4.0",
 ]
 test=[
+  "click>=8.1.8",
   "pytest-cov>=7.0.0",
   "pytest-mock>=3.15.1",
   "tox-uv>=1.29.0",

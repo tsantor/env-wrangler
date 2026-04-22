@@ -1,24 +1,16 @@
-import json
 import logging
 from pathlib import Path
 
-import click  # https://click.palletsprojects.com/
+import click
 
-from .core import envs_to_dict
-from .core import filter_keys_by_substring
-from .core import mask_sensitive_data_in_file
-from .core import remove_masked_values
-from .core import save_dict_to_env_file
-from .core import save_dict_to_json_file
-from .core import unmask_sensitive_data_in_file
-from .settings import config
-from .utils import home_agnostic_path
+from .application.secrets import extract_secrets
+from .application.secrets import has_secrets_file
+from .application.secrets import mask_secrets
+from .application.secrets import unmask_secrets
+from .infrastructure.config import config
+from .infrastructure.paths import home_agnostic_path
 
 logger = logging.getLogger(__name__)
-
-
-def silent_echo(*args, **kwargs):
-    pass
 
 
 def file_error():
@@ -31,14 +23,13 @@ def file_error():
 
 def common_options(func):
     """Decorator to add common options to a command."""
-    func = click.option(
+    return click.option(
         "-p",
         "--path",
         required=True,
         type=click.Path(),
         help="Path to the .env file or a directory containing .env files.",
     )(func)
-    return click.option("--verbose", is_flag=True, help="Enables verbose mode.")(func)
 
 
 @click.command()
@@ -48,11 +39,8 @@ def common_options(func):
     type=click.Choice(["both", "json", "env"], case_sensitive=False),
     help="The output format.",
 )
-def extract(path, verbose, format):  # noqa: A002
+def extract(path, format):  # noqa: A002
     """Extract secrets from the .env file(s) in the given directory into a separate file."""
-
-    if not verbose:
-        click.echo = silent_echo
 
     path = Path(path).expanduser()
     if path.is_file():
@@ -63,46 +51,26 @@ def extract(path, verbose, format):  # noqa: A002
 
     key_words = config["default"]["key_words"]
     target_envs = config["default"]["envs"]
-    env_files = [path / file for file in target_envs]
-    env = envs_to_dict(env_files)
-
-    secrets_dict = filter_keys_by_substring(env, key_words)
-    secrets_dict = remove_masked_values(secrets_dict)
-
-    if not secrets_dict:
+    output_files = extract_secrets(path, key_words, target_envs, format)
+    if not output_files:
         click.secho("No secrets found to extract.", err=True, fg="yellow")
         return
 
-    if format == "json":
-        output_file = save_dict_to_json_file(secrets_dict, path / "secrets.json")
+    for output_file in output_files:
         click.echo(f"Secrets saved to {home_agnostic_path(output_file)}")
-    elif format == "env":
-        output_file = save_dict_to_env_file(secrets_dict, path / ".secrets")
-        click.echo(f"Secrets saved to {home_agnostic_path(output_file)}")
-    else:
-        output_file1 = save_dict_to_json_file(secrets_dict, path / "secrets.json")
-        output_file2 = save_dict_to_env_file(secrets_dict, path / ".secrets")
-        click.echo(f"Secrets saved to {home_agnostic_path(output_file1)}")
-        click.echo(f"Secrets saved to {home_agnostic_path(output_file2)}")
 
 
 @click.command()
 @common_options
-def mask(path, verbose) -> None:
+def mask(path) -> None:
     """Mask sensitive data in the .env file(s) in the given directory."""
-
-    if not verbose:
-        click.echo = silent_echo
 
     path = Path(path).expanduser()
     if path.is_file():
         file_error()
         return
 
-    # Ensure that the secrets file exists
-    secret_env = path / ".secrets"
-    secret_json = path / "secrets.json"
-    if not secret_env.exists() and not secret_json.exists():
+    if not has_secrets_file(path):
         click.secho(
             (
                 "No secrets file(s) found (.secrets or secrets.json). "
@@ -114,16 +82,12 @@ def mask(path, verbose) -> None:
         )
         return
 
-    key_words = config["default"]["key_words"]
-    ignore_keys = config["default"]["ignore_keys"]
-    target_envs = config["default"]["envs"]
-
-    masked_files = []
-    for file_path in target_envs:
-        file = path / file_path
-        if file.exists():
-            masked_files.append(file)
-            mask_sensitive_data_in_file(file, key_words, ignore_keys)
+    masked_files = mask_secrets(
+        path,
+        config["default"]["key_words"],
+        config["default"]["ignore_keys"],
+        config["default"]["envs"],
+    )
 
     # Let the user know which files were masked
     if masked_files:
@@ -134,21 +98,15 @@ def mask(path, verbose) -> None:
 
 @click.command()
 @common_options
-def unmask(path, verbose) -> None:
+def unmask(path) -> None:
     """Unmask sensitive data in the .env file(s) in the given directory."""
-
-    if not verbose:
-        click.echo = silent_echo
 
     path = Path(path).expanduser()
     if path.is_file():
         file_error()
         return
 
-    # Ensure that the secrets file exists
-    secret_env = path / ".secrets"
-    secret_json = path / "secrets.json"
-    if not secret_env.exists() and not secret_json.exists():
+    if not has_secrets_file(path):
         click.secho(
             "No secrets file(s) found (.secrets or secrets.json).",
             fg="yellow",
@@ -156,20 +114,11 @@ def unmask(path, verbose) -> None:
         )
         return
 
-    key_words = config["default"]["key_words"]
-    target_envs = config["default"]["envs"]
-
-    unmasked_files = []
-    for file_path in target_envs:
-        env_file = path / file_path
-        if env_file.exists():
-            unmasked_files.append(env_file)
-            if secret_env.exists():
-                env = envs_to_dict([secret_env])
-                filtered = filter_keys_by_substring(env, key_words)
-            elif secret_json.exists():
-                filtered = json.loads(secret_json.read_text())
-            unmask_sensitive_data_in_file(env_file, filtered)
+    unmasked_files = unmask_secrets(
+        path,
+        config["default"]["key_words"],
+        config["default"]["envs"],
+    )
 
     # Let the user know which files were unmasked
     if unmasked_files:
